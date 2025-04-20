@@ -15,6 +15,10 @@ type USer_Delete struct {
 	Username string `json:"username"`
 	Email    string `json:"email"`
 }
+type User_login struct {
+	Username string `json:"username"`
+	Password    string `json:"password"`
+}
 type Class struct {
 	gorm.Model
 	Title       string `json:"title"`
