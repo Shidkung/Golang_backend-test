@@ -24,6 +24,7 @@ func main() {
 	router.HandleFunc("/users", userController.GetUsers).Methods("GET")
 	router.HandleFunc("/users", userController.CreateUser).Methods("POST")
 	router.HandleFunc("/users/login", userController.Login).Methods("POST")
+	router.HandleFunc("/users/logout", userController.Logout).Methods("POST")
 	router.HandleFunc("/users", userController.DeleteUser).Methods("DELETE")
 	router.HandleFunc("/users/delete-all", userController.DeleteAllUsers).Methods("DELETE")
 
