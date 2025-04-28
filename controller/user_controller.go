@@ -24,7 +24,21 @@ func (uc *UserController) GetUsers(w http.ResponseWriter, r *http.Request) {
 	}
 	json.NewEncoder(w).Encode(users)
 }
+func (uc *UserController) GetUsersbyid(w http.ResponseWriter, r *http.Request) {
+    id := r.URL.Query().Get("id")
+    if id == "" {
+        http.Error(w, "Missing ID parameter", http.StatusBadRequest)
+        return
+    }
 
+    var user model.User
+    if err := uc.DB.First(&user, id).Error; err != nil {
+        http.Error(w, "User not found", http.StatusNotFound)
+        return
+    }
+
+    json.NewEncoder(w).Encode(user)
+}
 func (uc *UserController) CreateUser(w http.ResponseWriter, r *http.Request) {
 	var newUser model.User
 
@@ -138,7 +152,7 @@ func (uc *UserController) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Set the JWT token in the cookie
+	// Set the JWT token in the cookie (optional)
 	http.SetCookie(w, &http.Cookie{
 		Name:     "token",
 		Value:    token,
@@ -147,8 +161,19 @@ func (uc *UserController) Login(w http.ResponseWriter, r *http.Request) {
 		Expires:  time.Now().Add(24 * time.Hour),
 	})
 
-	json.NewEncoder(w).Encode(map[string]string{"message": "Login successful"})
+	// Log the login
+	log.Printf("User '%s' logged in successfully at %s\n", user.Username, time.Now().Format(time.RFC3339))
+
+	// Send the token in the response body too
+	response := map[string]string{
+		"message": "Login successful",
+		"token":   token,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
 }
+
 func (uc *UserController) Logout(w http.ResponseWriter, r *http.Request) {
 	// Overwrite the token cookie with expired value
 	http.SetCookie(w, &http.Cookie{
